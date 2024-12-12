@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National ID Application</title>
+</head>
+<body>
+    <h1>National ID Application</h1>
+    <form action="/apply" method="POST" enctype="multipart/form-data">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" required>
+        <br><br>
+        <label for="nidNumber">NID Number:</label>
+        <input type="text" id="nidNumber" name="nidNumber" required>
+        <br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email">
+        <br><br>
+        <label for="videoImage">Upload Image:</label>
+        <input type="file" id="videoImage" name="videoImage" required>
+        <br><br>
+        <button type="submit">Apply</button>
+    </form>
+</body>
+</html>
