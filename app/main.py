@@ -23,15 +23,20 @@ def apply_nid():
     captured_image = request.form.get('capturedImage')
     video_image = request.files.get('videoImage')
 
-    # Save the captured or uploaded image
+    # Validate that NID number is provided
+    if not nid_number:
+        return jsonify({"status": "error", "message": "NID number is required."})
+
+    # Save the captured or uploaded image with the NID number as the file name
     if captured_image:
         # Decode and save the base64-encoded image
         image_data = base64.b64decode(captured_image)
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{nid_number}.jpg')
         with open(image_path, 'wb') as f:
             f.write(image_data)
     elif video_image:
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video_image.filename))
+        image_filename = f"{nid_number}{os.path.splitext(video_image.filename)[-1]}"
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(image_filename))
         video_image.save(image_path)
     else:
         return jsonify({"status": "error", "message": "No image provided."})
@@ -56,3 +61,4 @@ def apply_nid():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

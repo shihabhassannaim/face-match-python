@@ -53,6 +53,10 @@
             const imageData = canvas.toDataURL('image/jpeg');
             capturedImageInput.value = imageData.split(',')[1]; // Strip the data URL prefix
             alert('Image captured!');
+            videoStream.getTracks().forEach(track => track.stop());
+            video.style.display = "none"; // Hide video element
+            startVideoButton.disabled = false; // Enable start video button
+            captureButton.disabled = true; // Disable capture button
         });
     </script>
 </body>
