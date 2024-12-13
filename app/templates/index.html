@@ -18,9 +18,42 @@
         <input type="email" id="email" name="email">
         <br><br>
         <label for="videoImage">Upload Image:</label>
-        <input type="file" id="videoImage" name="videoImage" required>
+        <input type="file" id="videoImage" name="videoImage">
+        <br><br>
+        <h2>Or Capture Image:</h2>
+        <video id="video" autoplay></video>
+        <button type="button" id="capture">Capture</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <input type="hidden" name="capturedImage" id="capturedImage">
         <br><br>
         <button type="submit">Apply</button>
     </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const capturedImageInput = document.getElementById('capturedImage');
+
+        // Access the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error accessing the camera:', error);
+            });
+
+        // Capture the image
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+            capturedImageInput.value = imageData.split(',')[1]; // Strip the data URL prefix
+            alert('Image captured!');
+        });
+    </script>
 </body>
 </html>

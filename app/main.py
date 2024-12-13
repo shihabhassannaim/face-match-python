@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import os
+import base64
 from werkzeug.utils import secure_filename
 from face_matcher import is_face_matched
 from database import Database
@@ -19,17 +20,27 @@ def apply_nid():
     full_name = request.form['fullName']
     nid_number = request.form['nidNumber']
     email = request.form['email']
-    video_image = request.files['videoImage']
-    
-    # Save the captured image
-    video_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video_image.filename))
-    video_image.save(video_image_path)
+    captured_image = request.form.get('capturedImage')
+    video_image = request.files.get('videoImage')
+
+    # Save the captured or uploaded image
+    if captured_image:
+        # Decode and save the base64-encoded image
+        image_data = base64.b64decode(captured_image)
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
+        with open(image_path, 'wb') as f:
+            f.write(image_data)
+    elif video_image:
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video_image.filename))
+        video_image.save(image_path)
+    else:
+        return jsonify({"status": "error", "message": "No image provided."})
 
     # Check if the face matches with existing images in the database
     users = db.fetch_all_users()
     for user in users:
         existing_image_path = os.path.join(app.config['UPLOAD_FOLDER'], user['video_image'])
-        if is_face_matched(video_image_path, existing_image_path):
+        if is_face_matched(image_path, existing_image_path):
             return jsonify({
                 "status": "exists",
                 "message": "User already exists.",
@@ -37,7 +48,7 @@ def apply_nid():
             })
 
     # Save the new user's data in the database
-    db.insert_user(full_name, nid_number, email, video_image.filename)
+    db.insert_user(full_name, nid_number, email, os.path.basename(image_path))
     return jsonify({
         "status": "success",
         "message": "User registered successfully."
